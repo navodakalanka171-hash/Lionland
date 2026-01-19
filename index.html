@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lionland | Mega 3D Universe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root { --gold: #ffcc00; --gemini: #00d4ff; --bg: #010101; --glass: rgba(255, 255, 255, 0.05); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: var(--bg); color: white; overflow-x: hidden; scroll-behavior: smooth; }
+        h1, h2, h3, .logo { font-family: 'Orbitron', sans-serif; }
+
+        canvas#bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+
+        /* Stats Bar */
+        .top-nav-info { background: rgba(0,0,0,0.9); padding: 10px 5%; display: flex; justify-content: space-between; font-size: 11px; color: var(--gold); border-bottom: 1px solid var(--glass); position: fixed; width: 100%; top: 0; z-index: 1001; }
+
+        /* Navigation */
+        nav { background: rgba(0,0,0,0.8); backdrop-filter: blur(25px); padding: 50px 5% 15px; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000; border-bottom: 1px solid var(--glass); }
+        .logo { font-size: 28px; color: var(--gold); text-shadow: 0 0 20px var(--gold); text-decoration: none; font-weight: bold; }
+        
+        .search-container { position: relative; width: 350px; }
+        .search-container input { width: 100%; background: var(--glass); border: 1px solid #444; padding: 12px 25px; border-radius: 40px; color: white; outline: none; transition: 0.4s; }
+        .search-container input:focus { border-color: var(--gemini); box-shadow: 0 0 15px var(--gemini); }
+
+        nav ul { display: flex; list-style: none; gap: 15px; }
+        nav ul li a { color: white; text-decoration: none; font-size: 10px; text-transform: uppercase; font-weight: 600; }
+
+        section { padding: 160px 8% 60px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .hero-title { font-size: clamp(40px, 10vw, 100px); text-align: center; line-height: 1; margin-bottom: 20px; background: linear-gradient(to bottom, #fff, var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 30px rgba(255,204,0,0.3)); }
+
+        /* Cards Styling */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 35px; width: 100%; }
+        .card { background: var(--glass); padding: 35px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px); transition: 0.5s; position: relative; }
+        .card:hover { transform: translateY(-15px) scale(1.02); border-color: var(--gemini); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+
+        /* Movie Download Group */
+        .dl-group { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+        .dl-btn { flex: 1; padding: 12px; font-size: 10px; background: #111; border: 1px solid #444; color: white; text-decoration: none; text-align: center; border-radius: 10px; transition: 0.3s; }
+        .dl-btn:hover { background: var(--gold); color: black; font-weight: bold; }
+
+        /* Wiki Section */
+        .wiki-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
+        .tab-btn { padding: 12px 20px; background: var(--glass); border: 1px solid #444; color: white; cursor: pointer; border-radius: 10px; font-size: 12px; transition: 0.3s; }
+        .tab-btn:hover, .tab-btn.active { background: var(--gold); color: black; border-color: var(--gold); }
+        .wiki-display { background: rgba(0,0,0,0.6); padding: 40px; border-radius: 25px; border: 1px solid var(--gold); line-height: 1.8; animation: fadeIn 0.5s; }
+
+        /* Payment UI */
+        .pay-ui { background: rgba(0,0,0,0.9); padding: 30px; border-radius: 25px; border: 1px solid #333; margin-top: 20px; display: none; }
+        .bank-box { background: rgba(255, 204, 0, 0.05); padding: 20px; border: 1px dashed var(--gold); border-radius: 15px; margin-bottom: 20px; font-size: 13px; }
+
+        /* AI Chat */
+        .ai-hub { width: 100%; max-width: 900px; height: 550px; background: rgba(0,0,0,0.8); border: 1px solid var(--gemini); border-radius: 30px; overflow: hidden; display: flex; flex-direction: column; }
+        #chat-flow { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .msg { padding: 15px 25px; border-radius: 20px; font-size: 14px; max-width: 80%; }
+        .ai { background: rgba(0, 212, 255, 0.1); border-left: 5px solid var(--gemini); align-self: flex-start; }
+        .user { background: rgba(255, 204, 0, 0.1); border-right: 5px solid var(--gold); align-self: flex-end; }
+
+        /* Pagination */
+        .pagination { display: flex; gap: 15px; margin-top: 40px; }
+        .p-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--glass); border: 1px solid #444; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .p-btn:hover { background: var(--gemini); color: black; }
+
+        input, textarea { background: #000; border: 1px solid #333; color: white; padding: 15px; border-radius: 15px; width: 100%; outline: none; margin-bottom: 15px; }
+        .btn { background: var(--gold); color: black; padding: 18px; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; transition: 0.4s; font-family: 'Orbitron'; text-transform: uppercase; letter-spacing: 1px; }
+        .btn:hover { background: white; box-shadow: 0 0 30px rgba(255,255,255,0.2); transform: scale(1.03); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="top-nav-info">
+        <div>LIVE VISITORS: <span id="v-count">5,820</span></div>
+        <div style="font-weight: bold; letter-spacing: 2px;">LIONLAND OFFICIAL PORTAL</div>
+        <div>DOWNLOADS: <span id="d-count">24,300</span></div>
+    </div>
+
+    <nav>
+        <a href="#" class="logo">LIONLAND</a>
+        <div class="search-container">
+            <input type="text" id="siteSearch" placeholder="Search Movies, Wiki Topics..." onkeyup="siteSearch()">
+        </div>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#wiki">Wiki Hub</a></li>
+            <li><a href="#movies">Movies</a></li>
+            <li><a href="#courses">Courses</a></li>
+            <li><a href="#lionai">Lion AI</a></li>
+            <li><a href="#login">Register</a></li>
+        </ul>
+    </nav>
+
+    <section id="home">
+        <h1 class="hero-title">WELCOME TO<br>LIONLAND</h1>
+        <p style="font-size: 20px; opacity: 0.8; margin-bottom: 40px;">Experience the Future with <b>Navod A Rathnyaka</b></p>
+        <div style="display: flex; gap: 20px;">
+            <button class="btn" style="width: 250px;" onclick="location.href='#login'">GET STARTED</button>
+            <button class="btn" style="width: 250px; background: transparent; border: 1px solid var(--gold); color: var(--gold);" onclick="location.href='#movies'">EXPLORE MOVIES</button>
+        </div>
+    </section>
+
+    <section id="wiki">
+        <h2 style="color: var(--gold); margin-bottom: 30px;">LIONLAND <span style="color: white;">WIKIPEDIA</span></h2>
+        <div class="wiki-tabs">
+            <button class="tab-btn" onclick="loadWiki('sigiriya', this)">සීගිරිය</button>
+            <button class="tab-btn" onclick="loadWiki('piduru', this)">පිදුරුතලාගල</button>
+            <button class="tab-btn" onclick="loadWiki('katharagama', this)">කතරගම</button>
+            <button class="tab-btn" onclick="loadWiki('ali', this)">අලි ඇතුන්</button>
+            <button class="tab-btn" onclick="loadWiki('nasa', this)">NASA</button>
+        </div>
+        <div id="wiki-display" class="wiki-display">
+            <p>තොරතුරු බැලීමට ඉහත මාතෘකාවක් තෝරන්න.</p>
+        </div>
+    </section>
+
+    <section id="lionai">
+        <h2 style="color: var(--gemini); margin-bottom: 30px;">LION AI <span style="color: white;">(POWERED BY GEMINI)</span></h2>
+        <div class="ai-hub">
+            <div id="chat-flow">
+                <div class="msg ai">ආයුබෝවන් <b>Navod</b>! මම Gemini AI. සීගිරිය ගැන හෝ අභ්‍යවකාශය ගැන ඕනෑම දෙයක් අසන්න.</div>
+            </div>
+            <div style="padding: 20px; display: flex; gap: 10px; background: rgba(255,255,255,0.02);">
+                <input type="text" id="ai-input" placeholder="Ask anything to Gemini..." style="margin:0;">
+                <button class="btn" style="width: 120px;" onclick="askGemini()">ASK AI</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="courses">
+        <h2 style="color: var(--gold); margin-bottom: 30px;">PREMIUM COURSES</h2>
+        <div class="grid">
+            <div class="card s-item">
+                <h3 style="color: var(--gemini);">Advanced 3D Web Development</h3>
+                <p style="margin: 15px 0; opacity: 0.7;">මෙම වෙබ් අඩවිය වැනි 3D අඩවි තැනීමට ඉගෙන ගන්න.</p>
+                <p style="font-size: 24px; color: var(--gold); font-weight: bold;">LKR 9,500.00</p>
+                <button class="btn" style="width: 100%;" onclick="showPay()">ENROLL & PAY</button>
+                
+                <div id="pay-box" class="pay-ui">
+                    <div style="display:flex; gap:10px; margin-bottom:20px;">
+                        <button class="btn" style="flex:1; font-size:10px;" onclick="payMethod('card')">VISA/MASTER</button>
+                        <button class="btn" style="flex:1; font-size:10px;" onclick="payMethod('bank')">BANK TRANSFER</button>
+                    </div>
+                    <div id="bank-ui" class="bank-box" style="display:none;">
+                        <b>නිල බැංකු විස්තර:</b><br>
+                        නම: <b>RMNA RATHNAYAKA</b><br>
+                        බැංකුව: <b>PEOPLE'S BANK</b><br>
+                        ශාඛාව: <b>Galenbindunuwewa</b><br>
+                        ගිණුම් අංකය: <b>23320012083384</b><br>
+                        <hr style="margin:10px 0; opacity:0.1;">
+                        UPLOAD RECEIPT: <input type="file" style="font-size: 10px;">
+                    </div>
+                    <div id="card-ui">
+                        <input type="text" placeholder="Card Number">
+                        <div style="display:flex; gap:10px;"><input type="text" placeholder="EXP"><input type="text" placeholder="CVV"></div>
+                    </div>
+                    <button class="btn" style="width:100%; background: #27ae60; color: white;">PAYOUT NOW</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="movies">
+        <h2 style="color: var(--gold); margin-bottom: 30px;">MOVIES DOWNLOAD</h2>
+        <div id="movie-page-1" class="grid movie-page">
+            <div class="card s-item">
+                <div style="height:220px; background:rgba(255,255,255,0.05); border-radius:20px; display:flex; align-items:center; justify-content:center; border: 1px solid #333; margin-bottom:20px;">🎬 MOVIE POSTER</div>
+                <h3>The Lion King: Rise</h3>
+                <div class="dl-group">
+                    <a href="#" class="dl-btn" onclick="trackDl()">MP4 (360p)</a>
+                    <a href="#" class="dl-btn" onclick="trackDl()">HD (1080p)</a>
+                    <a href="#" class="dl-btn" onclick="trackDl()">ULTRA 4K</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="movie-page-2" class="grid movie-page" style="display:none;">
+            <div class="card s-item">
+                <div style="height:220px; background:rgba(255,255,255,0.05); border-radius:20px; display:flex; align-items:center; justify-content:center; border: 1px solid #333; margin-bottom:20px;">🎬 MOVIE POSTER</div>
+                <h3>Cyber Lion 2026</h3>
+                <div class="dl-group">
+                    <a href="#" class="dl-btn" onclick="trackDl()">MP4 (360p)</a>
+                    <a href="#" class="dl-btn" onclick="trackDl()">HD (1080p)</a>
+                    <a href="#" class="dl-btn" onclick="trackDl()">ULTRA 4K</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="pagination">
+            <button class="p-btn" onclick="changeMoviePage(1)">1</button>
+            <button class="p-btn" onclick="changeMoviePage(2)">2</button>
+            <button class="p-btn">></button>
+        </div>
+    </section>
+
+    <section id="login">
+        <h2 style="color: var(--gold); margin-bottom: 30px;">GET YOUR ACCESS</h2>
+        <div class="card" style="width: 100%; max-width: 550px; text-align: center;">
+            <p style="margin-bottom: 25px; opacity: 0.7;">ලියාපදිංචි වී Lionland හි සියලුම පහසුකම් ලබා ගන්න.</p>
+            <input type="text" placeholder="User Name">
+            <input type="email" placeholder="Email Address">
+            <input type="password" placeholder="Password">
+            <button class="btn" style="width: 100%;">CREATE ACCOUNT</button>
+        </div>
+    </section>
+
+    <footer style="padding: 60px; text-align: center; border-top: 1px solid var(--glass);">
+        <p>© 2026 Lionland Universe | Admin: <b>Navod A Rathnyaka</b></p>
+    </footer>
+
+    <script>
+        // --- 3D Space Engine ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        const stars = new THREE.Group();
+        for(let i=0; i<8000; i++) {
+            const star = new THREE.Mesh(new THREE.SphereGeometry(0.5, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+            star.position.set((Math.random()-0.5)*2000, (Math.random()-0.5)*2000, (Math.random()-0.5)*2000);
+            stars.add(star);
+        }
+        scene.add(stars);
+        camera.position.z = 1;
+        function animate() { requestAnimationFrame(animate); stars.rotation.y += 0.0005; renderer.render(scene, camera); }
+        animate();
+
+        // --- Live Stats ---
+        let visitors = 5820;
+        setInterval(() => { visitors += Math.floor(Math.random()*2); document.getElementById('v-count').innerText = visitors.toLocaleString(); }, 4000);
+        function trackDl() {
+            let d = document.getElementById('d-count');
+            d.innerText = (parseInt(d.innerText.replace(',','')) + 1).toLocaleString();
+            alert("Lionland Engine: ඔබේ Download එක ආරම්භ විය!");
+        }
+
+        // --- Search ---
+        function siteSearch() {
+            let val = document.getElementById('siteSearch').value.toLowerCase();
+            document.querySelectorAll('.s-item').forEach(it => it.style.display = it.innerText.toLowerCase().includes(val) ? "block" : "none");
+        }
+
+        // --- Wikipedia System ---
+        const wikiData = {
+            sigiriya: `<h3>සීගිරිය (Sigiriya)</h3><p>සීගිරිය යනු ක්‍රි.ව. 5 වන සියවසේදී කාශ්‍යප රජු විසින් ඉදිකරන ලද බලකොටුවකි. අඩි 600ක් පමණ උසැති පර්වතයක් මත ඉදිකර ඇති මෙය යුනෙස්කෝ ලෝක උරුමයකි.</p>`,
+            piduru: `<h3>පිදුරුතලාගල (Pidurutalagala)</h3><p>ශ්‍රී ලංකාවේ උසම කන්ද වන මෙය නුවරඑළිය දිස්ත්‍රික්කයේ පිහිටා ඇත. මෙහි උස මුහුදු මට්ටමේ සිට මීටර 2,524 කි.</p>`,
+            katharagama: `<h3>කතරගම (Katharagama)</h3><p>බෞද්ධ සහ හින්දු භක්තිකයන්ගේ ගෞරවයට පාත්‍ර වූ පූජනීය නගරයකි. කතරගම දෙවියන් වෙනුවෙන් පැවැත්වෙන පෙරහැර ලෝක ප්‍රකටය.</p>`,
+            ali: `<h3>අලි ඇතුන් (Elephants)</h3><p>ශ්‍රී ලංකාවේ සංස්කෘතිය සහ ආගම සමඟ අලි ඇතුන් බැඳී පවතී. අලි ඇතුන් පෙරහැර වැනි ආගමික උත්සව සඳහා ද විශාල වශයෙන් දායක වේ.</p>`,
+            nasa: `<h3>NASA</h3><p>ඇමරිකා එක්සත් ජනපදයේ අභ්‍යවකාශ පර්යේෂණ ආයතනයයි. 1958 දී ආරම්භ කළ මෙය සඳ මතට මිනිසුන් යැවූ ඇපලෝ මෙහෙයුම සඳහා ප්‍රසිද්ධය.</p>`
+        };
+        function loadWiki(key, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('wiki-display').innerHTML = wikiData[key];
+        }
+
+        // --- Movie Pagination ---
+        function changeMoviePage(p) {
+            document.querySelectorAll('.movie-page').forEach(page => page.style.display = 'none');
+            document.getElementById('movie-page-' + p).style.display = 'grid';
+        }
+
+        // --- Payment Control ---
+        function showPay() { document.getElementById('pay-box').style.display = 'block'; }
+        function payMethod(m) {
+            document.getElementById('bank-ui').style.display = m === 'bank' ? 'block' : 'none';
+            document.getElementById('card-ui').style.display = m === 'card' ? 'block' : 'none';
+        }
+
+        // --- Gemini AI ---
+        function askGemini() {
+            const inp = document.getElementById('ai-input');
+            const flow = document.getElementById('chat-flow');
+            if(!inp.value) return;
+            flow.innerHTML += `<div class="msg user">${inp.value}</div>`;
+            const reply = document.createElement('div');
+            reply.className = 'msg ai';
+            reply.innerText = "Lion AI (Gemini) සිතමින් පවතී...";
+            flow.appendChild(reply);
+            setTimeout(() => {
+                reply.innerHTML = `Navod, ඔබ ඇසූ "<b>${inp.value}</b>" පිළිබඳව Gemini AI වන මම මේ වන විට විශ්ලේෂණය කරමින් සිටිමි. (සැබෑ API සමඟ සම්බන්ධ වූ පසු සජීවී පිළිතුරු මෙහි දිස්වේ)`;
+                flow.scrollTop = flow.scrollHeight;
+            }, 1500);
+            inp.value = "";
+        }
+    </script>
+</body>
+</html>
