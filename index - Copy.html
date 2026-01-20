@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lionland | Mega 3D Universe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root { --gold: #ffcc00; --gemini: #00d4ff; --bg: #010101; --glass: rgba(255, 255, 255, 0.05); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: var(--bg); color: white; overflow-x: hidden; scroll-behavior: smooth; }
+        h1, h2, h3, .logo { font-family: 'Orbitron', sans-serif; }
+
+        canvas#bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+
+        /* Navigation */
+        .top-nav-info { background: rgba(0,0,0,0.9); padding: 10px 5%; display: flex; justify-content: space-between; font-size: 11px; color: var(--gold); border-bottom: 1px solid var(--glass); position: fixed; width: 100%; top: 0; z-index: 1001; }
+        nav { background: rgba(0,0,0,0.8); backdrop-filter: blur(25px); padding: 50px 5% 15px; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000; border-bottom: 1px solid var(--glass); }
+        .logo { font-size: 28px; color: var(--gold); text-decoration: none; font-weight: bold; }
+        nav ul { display: flex; list-style: none; gap: 15px; }
+        nav ul li a { color: white; text-decoration: none; font-size: 10px; text-transform: uppercase; font-weight: 600; }
+
+        section { padding: 160px 8% 60px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+
+        /* Typewriter Animation Style */
+        .typewriter-text { color: var(--gold); text-shadow: 0 0 20px rgba(255, 204, 0, 0.5); }
+        .cursor { display: inline-block; width: 8px; background-color: white; animation: blink 1s infinite; margin-left: 5px; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Download Overlay */
+        #dl-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 5000; flex-direction: column; justify-content: center; align-items: center; }
+        .timer-val { font-size: 100px; color: var(--gold); font-family: 'Orbitron'; }
+
+        /* Cards & Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; width: 100%; }
+        .card { background: var(--glass); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(15px); transition: 0.4s; text-align: center; }
+        .btn { background: var(--gold); color: black; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; font-family: 'Orbitron'; transition: 0.3s; margin-top: 10px; }
+        .spinner { display: none; width: 30px; height: 30px; border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 10px auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #111; color: white; }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="top-nav-info">
+        <div>LIVE VISITORS: 8,421</div>
+        <div style="letter-spacing: 2px;">LIONLAND OFFICIAL PORTAL</div>
+        <div>DOWNLOADS: 45K+</div>
+    </div>
+
+    <div id="dl-overlay">
+        <h2 style="color: white; font-family: 'Orbitron';">PREPARING DOWNLOAD...</h2>
+        <div class="timer-val" id="timer-num">5</div>
+        <div class="spinner" style="display: block;"></div>
+    </div>
+
+    <nav>
+        <a href="#" class="logo">LIONLAND</a>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#wiki">Wiki Hub</a></li>
+            <li><a href="#movies">Movies</a></li>
+            <li><a href="#courses">Courses</a></li>
+            <li><a href="#lionai">Lion AI</a></li>
+            <li><a href="#login">Register</a></li>
+        </ul>
+    </nav>
+
+    <section id="home">
+        <h1 style="font-size: 50px; text-align: center;">WELCOME TO</h1>
+        <h1 style="font-size: 80px; text-align: center;">
+            <span id="typewriter" class="typewriter-text"></span><span class="cursor">|</span>
+        </h1>
+        <p style="margin-top: 20px; font-size: 18px; color: #ccc;">Premium 3D Portal by Navod A Rathnyaka</p>
+    </section>
+
+    <section id="wiki">
+        <h2 style="color: var(--gold); margin-bottom: 30px;">LIONLAND WIKI</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>NASA Knowledge</h3>
+                <p>අභ්‍යවකාශය සහ නවතම තොරතුරු මෙතැනින්.</p>
+                <button class="btn">READ WIKI</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="movies">
+        <h2 style="color: var(--gold); margin-bottom: 40px;">MOVIES HUB</h2>
+        <div class="grid">
+            <div class="card">
+                <div style="height:150px; background:#222; border-radius:15px; margin-bottom:15px; display:flex; align-items:center; justify-content:center; font-size:40px;">🎬</div>
+                <h3>The Lion King (2024)</h3>
+                <button class="btn" onclick="startSmartDownload('The Lion King')">DOWNLOAD NOW</button>
+            </div>
+            <div class="card">
+                <div style="height:150px; background:#222; border-radius:15px; margin-bottom:15px; display:flex; align-items:center; justify-content:center; font-size:40px;">🎬</div>
+                <h3>Avatar: The Way</h3>
+                <button class="btn" onclick="startSmartDownload('Avatar 2')">DOWNLOAD NOW</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="courses">
+        <h2 style="color: var(--gold); margin-bottom: 30px;">PREMIUM COURSES</h2>
+        <div class="card" style="max-width: 500px;">
+            <h3>Advanced Web Design</h3>
+            <p style="font-size: 22px; color: var(--gold); margin: 15px 0;">LKR 9,500.00</p>
+            <button class="btn" onclick="document.getElementById('pay-ui').style.display='block'">ENROLL NOW</button>
+            
+            <div id="pay-ui" style="display:none; margin-top:20px; text-align: left; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px;">
+                <p>Bank: <b>PEOPLE'S BANK</b><br>Acc Name: <b>RMNA RATHNAYAKA</b><br>Acc No: <b>23320012083384</b></p>
+                <input type="file" style="margin-top:10px;">
+                <button class="btn" style="background: #27ae60; color: white;">SUBMIT RECEIPT</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="lionai">
+        <h2 style="color: var(--gemini); margin-bottom: 30px;">LION AI (GEMINI)</h2>
+        <div class="card" style="max-width: 600px; text-align: left;">
+            <div id="chat-flow" style="height: 150px; overflow-y: auto; margin-bottom: 10px; border-bottom: 1px solid #333;">
+                <div style="color: var(--gemini);">AI: ආයුබෝවන් Navod! ඔබට උදව් කරන්නේ කෙසේද?</div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="ai-input" placeholder="Ask Gemini..." style="margin:0;">
+                <button class="btn" style="width: 80px; margin:0;" onclick="askAI()">SEND</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="login">
+        <div class="card" style="max-width: 400px;">
+            <h2 style="color: var(--gold); margin-bottom: 20px;">REGISTER</h2>
+            <div id="reg-form">
+                <input type="text" id="reg-name" placeholder="Full Name">
+                <input type="email" placeholder="Email Address">
+                <button class="btn" id="reg-btn" onclick="handleReg()">CREATE ACCOUNT</button>
+                <div class="spinner" id="reg-spinner"></div>
+            </div>
+            <div id="reg-done" style="display:none; color: #27ae60;">
+                <h3>සාර්ථකයි!</h3>
+                <p id="welcome-msg"></p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // --- 3D Background ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas') });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        const stars = new THREE.Group();
+        for(let i=0; i<3000; i++) {
+            const s = new THREE.Mesh(new THREE.SphereGeometry(0.5, 4, 4), new THREE.MeshBasicMaterial({color: 0xffffff}));
+            s.position.set(Math.random()*800-400, Math.random()*800-400, Math.random()*800-400);
+            stars.add(s);
+        }
+        scene.add(stars); camera.position.z = 5;
+        function animate() { requestAnimationFrame(animate); stars.rotation.y += 0.001; renderer.render(scene, camera); }
+        animate();
+
+        // --- LION LAND Typewriter Animation ---
+        const text = "LION LAND";
+        const typewriter = document.getElementById('typewriter');
+        let index = 0;
+        function type() {
+            if (index < text.length) {
+                typewriter.innerHTML += text.charAt(index);
+                index++;
+                setTimeout(type, 250);
+            } else {
+                setTimeout(() => { typewriter.innerHTML = ""; index = 0; type(); }, 3000);
+            }
+        }
+        window.onload = type;
+
+        // --- Download Timer Logic ---
+        function startSmartDownload(name) {
+            const overlay = document.getElementById('dl-overlay');
+            const timerText = document.getElementById('timer-num');
+            overlay.style.display = 'flex';
+            let c = 5;
+            let inter = setInterval(() => {
+                c--; timerText.innerText = c;
+                if(c <= 0) {
+                    clearInterval(inter); overlay.style.display = 'none';
+                    alert(name + " Download Started!");
+                    timerText.innerText = "5";
+                }
+            }, 1000);
+        }
+
+        // --- Register Loading Logic ---
+        function handleReg() {
+            const name = document.getElementById('reg-name').value;
+            if(!name) return alert("කරුණාකර නම ඇතුළත් කරන්න.");
+            document.getElementById('reg-btn').style.display = 'none';
+            document.getElementById('reg-spinner').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('reg-form').style.display = 'none';
+                document.getElementById('reg-done').style.display = 'block';
+                document.getElementById('welcome-msg').innerText = `ආයුබෝවන් ${name}, ඔබ සාර්ථකව සම්බන්ධ විය!`;
+            }, 2000);
+        }
+
+        // --- AI Chat Logic ---
+        function askAI() {
+            const inp = document.getElementById('ai-input');
+            const flow = document.getElementById('chat-flow');
+            if(!inp.value) return;
+            flow.innerHTML += `<div style="text-align:right; color:var(--gold); margin-bottom:5px;">User: ${inp.value}</div>`;
+            setTimeout(() => {
+                flow.innerHTML += `<div style="color:var(--gemini);">AI: "${inp.value}" ගැන සොයමින් සිටිමි...</div>`;
+                flow.scrollTop = flow.scrollHeight;
+            }, 800);
+            inp.value = "";
+        }
+    </script>
+</body>
+</html>
